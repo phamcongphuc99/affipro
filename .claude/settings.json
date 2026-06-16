@@ -13,7 +13,16 @@
       "Bash(node -e \"console.log\\('tiptap/react', require\\('@tiptap/react/package.json'\\).version\\)\")",
       "Bash(echo \"=== exit $? ===\")",
       "Bash(npx next *)",
-      "Bash(timeout 7 npx nodemon)"
+      "Bash(timeout 7 npx nodemon)",
+      "Bash(curl -s -o /dev/null -w \"port3000: HTTP %{http_code}\\\\n\" http://localhost:3000/uploads/aaa-1781603243327.jpg)",
+      "Bash(curl -s -o /dev/null -w \"port3001: HTTP %{http_code}\\\\n\" http://localhost:3001/uploads/aaa-1781603243327.jpg)",
+      "Bash(curl -s -o /dev/null -w \"anh cu: HTTP %{http_code}  type=%{content_type}\\\\n\" \"http://localhost:3000/uploads/aaa-1781603243327.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"khong ton tai: HTTP %{http_code}\\\\n\" \"http://localhost:3000/uploads/khong-co.jpg\")",
+      "Bash(curl -s -o /dev/null http://localhost:3005/)",
+      "Bash(curl -s -o /dev/null -w \"anh: HTTP %{http_code}  type=%{content_type}\\\\n\" \"http://localhost:3005/uploads/aaa-1781603243327.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"khong co: HTTP %{http_code}\\\\n\" \"http://localhost:3005/uploads/khong-co.jpg\")",
+      "Bash(npx kill-port *)",
+      "Bash(powershell -Command 'Get-NetTCPConnection -LocalPort 3005 -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }')"
     ]
   }
 }

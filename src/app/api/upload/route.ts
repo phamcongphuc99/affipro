@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
     const base = toSlug(file.name.replace(/\.[^.]+$/, "")) || "image";
     const filename = `${base}-${Date.now()}.${ext}`;
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    // Lưu ngoài thư mục public (Next không phục vụ được file public thêm sau khi
+    // server đã chạy). File được phục vụ qua route /uploads/[...path].
+    const uploadDir = path.join(process.cwd(), "uploads");
     await mkdir(uploadDir, { recursive: true });
     await writeFile(path.join(uploadDir, filename), buffer);
 

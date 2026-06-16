@@ -25,8 +25,8 @@ yarn-error.log*
 .env*.local
 
 # uploads do người dùng tải lên (giữ lại thư mục, bỏ qua file)
-/public/uploads/*
-!/public/uploads/.gitkeep
+/uploads/*
+!/uploads/.gitkeep
 
 # typescript
 *.tsbuildinfo

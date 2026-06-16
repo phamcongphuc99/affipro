@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUpload from "./ImageUpload";
+import MultiImageUpload from "./MultiImageUpload";
 import RichTextEditor from "./RichTextEditor";
 
 interface Category {
@@ -19,6 +20,7 @@ interface ProductData {
   price?: number;
   salePrice?: number | null;
   imageUrl?: string | null;
+  gallery?: string | null;
   affiliateUrl?: string;
   store?: string | null;
   rating?: number | null;
@@ -52,6 +54,14 @@ export default function ProductForm({
     published: product?.published ?? true,
     categoryId: product?.categoryId ?? "",
   });
+  // Thư viện ảnh (tối đa 5) lưu riêng dưới dạng mảng, gửi lên dưới dạng JSON.
+  const [gallery, setGallery] = useState<string[]>(() => {
+    try {
+      return product?.gallery ? JSON.parse(product.gallery) : [];
+    } catch {
+      return [];
+    }
+  });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -70,6 +80,7 @@ export default function ProductForm({
       salePrice: form.salePrice === "" ? null : Number(form.salePrice),
       rating: form.rating === "" ? null : Number(form.rating),
       categoryId: form.categoryId === "" ? null : Number(form.categoryId),
+      gallery: gallery.length ? JSON.stringify(gallery) : null,
     };
 
     try {
@@ -98,13 +109,32 @@ export default function ProductForm({
   const labelCls = "block text-sm font-medium text-gray-700 mb-1";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-3xl">
+    <form onSubmit={handleSubmit} className="space-y-5 max-w-5xl">
+      {/* Thanh hành động dính trên cùng - luôn thấy khi cuộn */}
+      <div className="sticky top-0 z-20 -mx-6 md:-mx-8 px-6 md:px-8 py-3 bg-gray-100/95 backdrop-blur border-b border-gray-200 flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
+        >
+          {saving ? "Đang lưu..." : isEdit ? "Cập nhật" : "Tạo sản phẩm"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/admin/products")}
+          className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+        >
+          Hủy
+        </button>
+      </div>
+
       {error && (
         <div className="bg-red-50 text-red-600 text-sm px-4 py-2.5 rounded-lg">
           {error}
         </div>
       )}
 
+      <div className="grid lg:grid-cols-2 gap-5 items-start">
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
         <div>
           <label className={labelCls}>Tên sản phẩm *</label>
@@ -140,6 +170,13 @@ export default function ProductForm({
           label="Ảnh đại diện"
           value={form.imageUrl}
           onChange={(url) => set("imageUrl", url)}
+        />
+
+        <MultiImageUpload
+          label="Thư viện ảnh (hiển thị dưới ảnh chính)"
+          value={gallery}
+          onChange={setGallery}
+          max={5}
         />
       </div>
 
@@ -213,6 +250,7 @@ export default function ProductForm({
           </select>
         </div>
       </div>
+      </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
         <RichTextEditor
@@ -238,23 +276,6 @@ export default function ProductForm({
             Hiển thị (đã xuất bản)
           </label>
         </div>
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
-        >
-          {saving ? "Đang lưu..." : isEdit ? "Cập nhật" : "Tạo sản phẩm"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/products")}
-          className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
-        >
-          Hủy
-        </button>
       </div>
     </form>
   );

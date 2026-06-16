@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, discountPercent } from "@/lib/utils";
 import ProductCard from "@/components/site/ProductCard";
+import ProductGallery from "@/components/site/ProductGallery";
 
 interface Props {
   params: { slug: string };
@@ -73,29 +74,11 @@ export default async function ProductDetailPage({ params }: Props) {
 
       <div className="grid md:grid-cols-2 gap-10">
         {/* Ảnh */}
-        <div>
-          <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={product.imageUrl || "/placeholder.svg"}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
-          </div>
-          {gallery.length > 0 && (
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {gallery.map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={i}
-                  src={src}
-                  alt={`${product.name} ${i + 1}`}
-                  className="aspect-square rounded-lg object-cover border border-gray-200"
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery
+          main={product.imageUrl}
+          images={gallery}
+          name={product.name}
+        />
 
         {/* Thông tin */}
         <div>

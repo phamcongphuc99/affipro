@@ -65,6 +65,24 @@ export default function PostForm({ post }: { post?: PostData }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 max-w-3xl">
+      {/* Thanh hành động dính trên cùng */}
+      <div className="sticky top-0 z-20 -mx-6 md:-mx-8 px-6 md:px-8 py-3 bg-gray-100/95 backdrop-blur border-b border-gray-200 flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
+        >
+          {saving ? "Đang lưu..." : isEdit ? "Cập nhật" : "Đăng bài"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/admin/posts")}
+          className="px-6 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+        >
+          Hủy
+        </button>
+      </div>
+
       {error && (
         <div className="bg-red-50 text-red-600 text-sm px-4 py-2.5 rounded-lg">
           {error}
@@ -120,23 +138,6 @@ export default function PostForm({ post }: { post?: PostData }) {
           />
           Xuất bản (hiển thị công khai)
         </label>
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
-        >
-          {saving ? "Đang lưu..." : isEdit ? "Cập nhật" : "Đăng bài"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/posts")}
-          className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
-        >
-          Hủy
-        </button>
       </div>
     </form>
   );
