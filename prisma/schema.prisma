@@ -1,0 +1,87 @@
+// Prisma schema cho website affiliate + CMS
+// DB: MySQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Tài khoản quản trị CMS
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String // mật khẩu đã hash bằng bcrypt
+  name      String
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+// Danh mục sản phẩm
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+// Sản phẩm affiliate
+model Product {
+  id            Int       @id @default(autoincrement())
+  name          String
+  slug          String    @unique
+  description   String?   @db.Text // mô tả ngắn
+  content       String?   @db.LongText // mô tả chi tiết (HTML)
+  price         Int       @default(0) // giá gốc (VND)
+  salePrice     Int? // giá khuyến mãi (VND), null nếu không có
+  imageUrl      String? // ảnh đại diện
+  gallery       String?   @db.Text // JSON mảng URL ảnh phụ
+  affiliateUrl  String    @db.Text // link affiliate "Mua ngay"
+  store         String? // tên sàn: Shopee, Lazada, Tiki...
+  rating        Float?    @default(0) // điểm đánh giá 0-5
+  featured      Boolean   @default(false) // sản phẩm nổi bật
+  published     Boolean   @default(true)
+  clicks        Int       @default(0) // số lượt bấm mua (theo dõi hiệu quả)
+  categoryId    Int?
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([categoryId])
+  @@index([featured])
+  @@index([published])
+}
+
+// Bài viết / Tin tức
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  slug        String    @unique
+  excerpt     String?   @db.Text // tóm tắt
+  content     String    @db.LongText // nội dung HTML
+  coverImage  String?
+  published   Boolean   @default(true)
+  publishedAt DateTime?
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published])
+}
+
+// Cấu hình site dạng key-value (tên site, logo, nội dung trang giới thiệu, liên hệ...)
+model Setting {
+  key   String @id
+  value String @db.LongText
+}

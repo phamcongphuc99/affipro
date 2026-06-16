@@ -1,0 +1,23 @@
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import ProductForm from "@/components/admin/ProductForm";
+
+export default async function EditProductPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const [product, categories] = await Promise.all([
+    prisma.product.findUnique({ where: { id: Number(params.id) } }),
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+  ]);
+
+  if (!product) notFound();
+
+  return (
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Sửa sản phẩm</h1>
+      <ProductForm product={product} categories={categories} />
+    </div>
+  );
+}

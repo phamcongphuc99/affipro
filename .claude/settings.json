@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(openssl rand *)",
+      "Bash(docker exec *)",
+      "Bash(docker rm *)",
+      "Bash(docker run *)",
+      "Bash(node -e \"console.log\\('tiptap/react', require\\('@tiptap/react/package.json'\\).version\\)\")",
+      "Bash(echo \"=== exit $? ===\")",
+      "Bash(npx next *)",
+      "Bash(timeout 7 npx nodemon)"
+    ]
+  }
+}

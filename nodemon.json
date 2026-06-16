@@ -1,0 +1,8 @@
+{
+  "//": "Chỉ theo dõi các file cấu hình để tự restart Next.js dev server. Code React/CSS đã được Next Fast Refresh tự cập nhật, KHÔNG cần restart.",
+  "watch": [".env", "prisma/schema.prisma", "next.config.mjs"],
+  "ext": "env,prisma,mjs",
+  "ignore": [".next/**", "node_modules/**", "src/**"],
+  "exec": "next dev",
+  "delay": "800"
+}
