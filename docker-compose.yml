@@ -1,0 +1,50 @@
+# ====== docker-compose: chạy cả web + MySQL bằng 1 lệnh ======
+# Sửa các giá trị mật khẩu/secret bên dưới trước khi dùng thật.
+
+services:
+  # --- Cơ sở dữ liệu MySQL ---
+  db:
+    image: mysql:8.4
+    restart: always
+    command: >
+      --mysql-native-password=ON
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: "admin123123"
+      MYSQL_DATABASE: "affiliate_db"
+    volumes:
+      - db_data:/var/lib/mysql # dữ liệu DB được giữ lại kể cả khi rebuild
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-padmin123123"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  # --- Web Next.js ---
+  app:
+    build: .
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy # đợi DB sẵn sàng mới chạy app
+    environment:
+      # Kết nối tới service "db" (không phải localhost)
+      DATABASE_URL: "mysql://root:admin123123@db:3306/affiliate_db"
+      # ĐỔI chuỗi bí mật này khi chạy thật
+      AUTH_SECRET: "82em0+75wo5XBI97htxHwm3g+dPS0/njYvmcTNIpl8I="
+      # Tài khoản admin khởi tạo (dùng khi chạy seed)
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD: "admin123456"
+      ADMIN_NAME: "Quản trị viên"
+      # ĐỔI thành tên miền thật khi deploy (vd: https://affipro.vn)
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+      NODE_ENV: "production"
+    ports:
+      - "3000:3000" # truy cập web qua cổng 3000
+    volumes:
+      - uploads:/app/uploads # ảnh upload được giữ lại kể cả khi rebuild
+
+volumes:
+  db_data:
+  uploads:

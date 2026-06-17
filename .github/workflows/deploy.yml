@@ -1,0 +1,26 @@
+# Tự động deploy khi push code lên nhánh main.
+# Cần khai báo 3 secret trong GitHub repo (Settings > Secrets and variables > Actions):
+#   SSH_HOST  : IP/tên miền server
+#   SSH_USER  : user SSH (vd: root hoặc ubuntu)
+#   SSH_KEY   : private key SSH để đăng nhập server
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH vào server và deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/project_affilate
+            git pull
+            docker compose up -d --build
+            docker image prune -f
