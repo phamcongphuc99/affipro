@@ -57,10 +57,26 @@ model Product {
   category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  clickEvents   ClickEvent[]
 
   @@index([categoryId])
   @@index([featured])
   @@index([published])
+}
+
+// Ghi lại từng lượt bấm "Mua ngay" để vẽ biểu đồ theo ngày / danh mục / sản phẩm.
+// categoryId được lưu kèm (denormalize) để thống kê theo danh mục nhanh, không
+// bị ảnh hưởng nếu sau này sản phẩm đổi danh mục.
+model ClickEvent {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  categoryId Int?
+  createdAt  DateTime @default(now())
+
+  @@index([productId])
+  @@index([categoryId])
+  @@index([createdAt])
 }
 
 // Bài viết / Tin tức

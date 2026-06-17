@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const nav = [
   { href: "/", label: "Trang chủ" },
@@ -15,12 +15,30 @@ const nav = [
 export default function Header({ siteName }: { siteName: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Thêm bóng đổ khi người dùng cuộn xuống để header tách bạch với nội dung.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Đóng menu mobile khi chuyển trang
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200">
+    <header
+      className={`sticky top-0 z-50 bg-white border-b border-gray-200 transition-shadow ${
+        scrolled ? "shadow-md" : ""
+      }`}
+    >
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl text-brand-700">
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">

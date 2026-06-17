@@ -23,8 +23,8 @@ const FIELDS: {
     group: "Banner trang chủ (Hero)",
     items: [
       { key: "hero_title", label: "Tiêu đề lớn" },
-      { key: "hero_subtitle", label: "Mô tả phụ", type: "textarea" },
       { key: "hero_image", label: "Ảnh banner", type: "image" },
+      { key: "hero_subtitle", label: "Mô tả phụ", type: "textarea" },
     ],
   },
   {
@@ -88,16 +88,20 @@ export default function SettingsForm({
     "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full">
       {FIELDS.map((section) => (
         <div
           key={section.group}
           className="bg-white rounded-xl border border-gray-200 p-5"
         >
           <h2 className="font-semibold text-gray-900 mb-4">{section.group}</h2>
-          <div className="space-y-4">
-            {section.items.map((field) => (
-              <div key={field.key}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            {section.items.map((field) => {
+              // Các trường rộng (mô tả dài, soạn thảo) chiếm trọn 1 hàng;
+              // ô ảnh để dạng cột để có thể ghép cặp cùng hàng với ô khác.
+              const wide = field.type === "textarea" || field.type === "html";
+              return (
+              <div key={field.key} className={wide ? "md:col-span-2" : ""}>
                 {field.type === "image" ? (
                   <ImageUpload
                     label={field.label}
@@ -132,7 +136,8 @@ export default function SettingsForm({
                   </>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
+import ClicksChart from "@/components/admin/ClicksChart";
 
 export default async function DashboardPage() {
-  const [productCount, postCount, categoryCount, topProducts] =
+  const [productCount, postCount, categoryCount, topProducts, categories] =
     await Promise.all([
       prisma.product.count(),
       prisma.post.count(),
@@ -12,6 +13,10 @@ export default async function DashboardPage() {
         orderBy: { clicks: "desc" },
         take: 5,
         where: { clicks: { gt: 0 } },
+      }),
+      prisma.category.findMany({
+        orderBy: { name: "asc" },
+        select: { id: true, name: true },
       }),
     ]);
 
@@ -37,6 +42,11 @@ export default async function DashboardPage() {
             <div className="text-sm text-gray-500">{s.label}</div>
           </Link>
         ))}
+      </div>
+
+      {/* Biểu đồ lượt bấm theo ngày */}
+      <div className="mt-8">
+        <ClicksChart categories={categories} />
       </div>
 
       <div className="mt-8 bg-white rounded-xl border border-gray-200 p-6">

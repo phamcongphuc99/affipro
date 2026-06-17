@@ -8,10 +8,12 @@ export default function DeleteButton({
   url,
   label = "Xóa",
   confirmText = "Bạn có chắc muốn xóa mục này?",
+  className = "text-red-600 hover:text-red-700 hover:underline text-sm",
 }: {
   url: string;
   label?: string;
   confirmText?: string;
+  className?: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -38,7 +40,7 @@ export default function DeleteButton({
     <button
       onClick={handleDelete}
       disabled={loading}
-      className="text-red-600 hover:text-red-700 hover:underline text-sm disabled:opacity-50"
+      className={`${className} disabled:opacity-50`}
     >
       {loading ? "Đang xóa..." : label}
     </button>

@@ -16,10 +16,16 @@ export async function GET(
     );
   }
 
-  // Tăng bộ đếm (không chặn redirect nếu lỗi)
-  prisma.product
-    .update({ where: { id }, data: { clicks: { increment: 1 } } })
-    .catch(() => {});
+  // Tăng bộ đếm tổng + ghi 1 lượt click theo ngày (không chặn redirect nếu lỗi)
+  Promise.all([
+    prisma.product.update({
+      where: { id },
+      data: { clicks: { increment: 1 } },
+    }),
+    prisma.clickEvent.create({
+      data: { productId: id, categoryId: product.categoryId },
+    }),
+  ]).catch(() => {});
 
   return NextResponse.redirect(product.affiliateUrl);
 }

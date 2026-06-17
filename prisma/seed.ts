@@ -203,6 +203,44 @@ async function main() {
   }
   console.log("✔ Đã tạo tin tức mẫu");
 
+  // ===== 6. Lượt click mẫu (chỉ tạo khi bảng còn trống) =====
+  const existingEvents = await prisma.clickEvent.count();
+  if (existingEvents === 0) {
+    const allProducts = await prisma.product.findMany({
+      select: { id: true, categoryId: true },
+    });
+    const rows: { productId: number; categoryId: number | null; createdAt: Date }[] = [];
+    const DAYS = 30;
+    for (let d = 0; d < DAYS; d++) {
+      const date = new Date();
+      date.setDate(date.getDate() - d);
+      // mỗi ngày sinh ngẫu nhiên một số lượt click
+      const clicksToday = Math.floor(Math.random() * 12);
+      for (let i = 0; i < clicksToday; i++) {
+        const p = allProducts[Math.floor(Math.random() * allProducts.length)];
+        if (!p) continue;
+        const when = new Date(date);
+        when.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+        rows.push({ productId: p.id, categoryId: p.categoryId, createdAt: when });
+      }
+    }
+    if (rows.length) {
+      await prisma.clickEvent.createMany({ data: rows });
+      // Cập nhật lại bộ đếm tổng cho khớp
+      const counts = rows.reduce<Record<number, number>>((acc, r) => {
+        acc[r.productId] = (acc[r.productId] || 0) + 1;
+        return acc;
+      }, {});
+      for (const [pid, c] of Object.entries(counts)) {
+        await prisma.product.update({
+          where: { id: Number(pid) },
+          data: { clicks: { increment: c } },
+        });
+      }
+    }
+    console.log(`✔ Đã tạo ${rows.length} lượt click mẫu`);
+  }
+
   console.log("✅ Seed hoàn tất!");
 }
 

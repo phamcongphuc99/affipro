@@ -64,7 +64,7 @@ export default function PostForm({ post }: { post?: PostData }) {
   const labelCls = "block text-sm font-medium text-gray-700 mb-1";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-w-3xl">
+    <form onSubmit={handleSubmit} className="space-y-5 w-full">
       {/* Thanh hành động dính trên cùng */}
       <div className="sticky top-0 z-20 -mx-6 md:-mx-8 px-6 md:px-8 py-3 bg-gray-100/95 backdrop-blur border-b border-gray-200 flex items-center gap-3">
         <button
@@ -90,38 +90,45 @@ export default function PostForm({ post }: { post?: PostData }) {
       )}
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-        <div>
-          <label className={labelCls}>Tiêu đề *</label>
-          <input
-            className={input}
-            value={form.title}
-            onChange={(e) => set("title", e.target.value)}
-            required
+        {/* Hàng 1: Tiêu đề | Slug */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Tiêu đề *</label>
+            <input
+              className={input}
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Slug (để trống sẽ tự tạo)</label>
+            <input
+              className={input}
+              value={form.slug}
+              onChange={(e) => set("slug", e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Hàng 2: Tóm tắt | Ảnh bìa */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          <div>
+            <label className={labelCls}>Tóm tắt</label>
+            <textarea
+              className={input}
+              rows={4}
+              value={form.excerpt}
+              onChange={(e) => set("excerpt", e.target.value)}
+              placeholder="Để trống sẽ tự lấy từ nội dung."
+            />
+          </div>
+          <ImageUpload
+            label="Ảnh bìa"
+            value={form.coverImage}
+            onChange={(url) => set("coverImage", url)}
           />
         </div>
-        <div>
-          <label className={labelCls}>Slug (để trống sẽ tự tạo)</label>
-          <input
-            className={input}
-            value={form.slug}
-            onChange={(e) => set("slug", e.target.value)}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Tóm tắt</label>
-          <textarea
-            className={input}
-            rows={2}
-            value={form.excerpt}
-            onChange={(e) => set("excerpt", e.target.value)}
-            placeholder="Để trống sẽ tự lấy từ nội dung."
-          />
-        </div>
-        <ImageUpload
-          label="Ảnh bìa"
-          value={form.coverImage}
-          onChange={(url) => set("coverImage", url)}
-        />
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">

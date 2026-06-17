@@ -2,14 +2,17 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/site/ProductCard";
+import Pagination from "@/components/site/Pagination";
 
 export const metadata: Metadata = { title: "Sản phẩm" };
 export const dynamic = "force-dynamic";
 
+const PAGE_SIZE = 9; // số sản phẩm mỗi trang
+
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string };
+  searchParams: { category?: string; search?: string; page?: string };
 }) {
   const { category, search } = searchParams;
 
@@ -17,11 +20,21 @@ export default async function ProductsPage({
   if (category) where.category = { slug: category };
   if (search) where.name = { contains: search };
 
+  // Tổng số sản phẩm khớp điều kiện -> tính số trang
+  const total = await prisma.product.count({ where });
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(
+    Math.max(1, Number(searchParams.page) || 1),
+    totalPages
+  );
+
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
       where,
       orderBy: { createdAt: "desc" },
       include: { category: true },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
     }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
@@ -72,11 +85,23 @@ export default async function ProductsPage({
       </div>
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        <>
+          <div className="mb-4 text-sm text-gray-500">
+            Hiển thị {(page - 1) * PAGE_SIZE + 1}–
+            {(page - 1) * PAGE_SIZE + products.length} trong {total} sản phẩm
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            basePath="/san-pham"
+            params={{ category, search }}
+          />
+        </>
       ) : (
         <p className="text-gray-500 py-10 text-center">
           Không tìm thấy sản phẩm nào.
