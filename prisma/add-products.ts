@@ -2,8 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Ảnh dùng picsum (luôn tải được). Mỗi slug cho 1 ảnh cố định khác nhau.
-const img = (slug: string) => `https://picsum.photos/seed/${slug}/600/600`;
+// Ảnh mặc định (Unsplash). Sau khi tạo, chạy prisma/fix-images.ts để gán
+// ảnh đúng chủ đề cho từng sản phẩm.
+const img = (_slug: string) =>
+  `https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80`;
 
 type P = {
   name: string;

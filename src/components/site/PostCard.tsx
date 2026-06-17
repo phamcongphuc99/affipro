@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import SafeImage from "./SafeImage";
 
 interface PostCardProps {
   post: {
@@ -17,9 +18,8 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <article className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
       <Link href={`/tin-tuc/${post.slug}`} className="block aspect-video overflow-hidden bg-gray-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={post.coverImage || "/placeholder.svg"}
+        <SafeImage
+          src={post.coverImage}
           alt={post.title}
           className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
         />

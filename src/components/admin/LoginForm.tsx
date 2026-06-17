@@ -27,7 +27,12 @@ export default function LoginForm() {
         setLoading(false);
         return;
       }
-      const from = searchParams.get("from") || "/admin";
+      // Chỉ chấp nhận đường dẫn nội bộ (chống open redirect: ?from=https://evil.com)
+      const fromParam = searchParams.get("from") || "/admin";
+      const from =
+        fromParam.startsWith("/") && !fromParam.startsWith("//")
+          ? fromParam
+          : "/admin";
       router.push(from);
       router.refresh();
     } catch {

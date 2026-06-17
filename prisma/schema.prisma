@@ -81,17 +81,22 @@ model ClickEvent {
 
 // Bài viết / Tin tức
 model Post {
-  id          Int       @id @default(autoincrement())
-  title       String
-  slug        String    @unique
-  excerpt     String?   @db.Text // tóm tắt
-  content     String    @db.LongText // nội dung HTML
-  coverImage  String?
-  published   Boolean   @default(true)
-  publishedAt DateTime?
-  views       Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              Int       @id @default(autoincrement())
+  title           String
+  slug            String    @unique
+  excerpt         String?   @db.Text // tóm tắt
+  content         String    @db.LongText // nội dung HTML
+  coverImage      String?
+  // ===== SEO =====
+  metaTitle       String?   // thẻ <title> tùy chỉnh (để trống dùng tiêu đề)
+  metaDescription String?   @db.Text // meta description (để trống dùng tóm tắt)
+  focusKeyword    String?   // từ khóa chính để đối chiếu SEO
+  ogImage         String?   // ảnh đại diện khi chia sẻ lên mạng xã hội
+  published       Boolean   @default(true)
+  publishedAt     DateTime?
+  views           Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([published])
 }

@@ -41,6 +41,25 @@ const FIELDS: {
       { key: "footer_text", label: "Dòng chữ chân trang" },
     ],
   },
+  {
+    group: "Banner cột tin tức (sidebar)",
+    items: [
+      { key: "sidebar_banner_image", label: "Ảnh banner", type: "image" },
+      {
+        key: "sidebar_banner_link",
+        label: "Link khi bấm vào banner (vd: /san-pham hoặc https://...)",
+      },
+    ],
+  },
+  {
+    group: "SEO & Mạng xã hội",
+    items: [
+      { key: "seo_keywords", label: "Từ khóa SEO (cách nhau bởi dấu phẩy)", type: "textarea" },
+      { key: "og_default_image", label: "Ảnh chia sẻ mặc định (Open Graph)", type: "image" },
+      { key: "google_site_verification", label: "Mã xác minh Google Search Console" },
+      { key: "ga_measurement_id", label: "Google Analytics ID (G-XXXXXXX)" },
+    ],
+  },
 ];
 
 export default function SettingsForm({
@@ -89,6 +108,19 @@ export default function SettingsForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 w-full">
+      {/* Thanh hành động dính trên cùng */}
+      <div className="sticky top-0 z-20 -mx-6 md:-mx-8 px-6 md:px-8 py-3 bg-gray-100/95 backdrop-blur border-b border-gray-200 flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
+        >
+          {saving ? "Đang lưu..." : "Lưu cấu hình"}
+        </button>
+        {saved && <span className="text-emerald-600 text-sm">✔ Đã lưu</span>}
+        {error && <span className="text-red-600 text-sm">{error}</span>}
+      </div>
+
       {FIELDS.map((section) => (
         <div
           key={section.group}
@@ -141,18 +173,6 @@ export default function SettingsForm({
           </div>
         </div>
       ))}
-
-      <div className="flex items-center gap-4">
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-2.5 rounded-lg disabled:opacity-50"
-        >
-          {saving ? "Đang lưu..." : "Lưu cấu hình"}
-        </button>
-        {saved && <span className="text-emerald-600 text-sm">✔ Đã lưu</span>}
-        {error && <span className="text-red-600 text-sm">{error}</span>}
-      </div>
     </form>
   );
 }

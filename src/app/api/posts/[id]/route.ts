@@ -38,6 +38,10 @@ export async function PUT(
         excerpt,
         content: body.content,
         coverImage: body.coverImage ?? null,
+        metaTitle: body.metaTitle ?? null,
+        metaDescription: body.metaDescription ?? null,
+        focusKeyword: body.focusKeyword ?? null,
+        ogImage: body.ogImage ?? null,
         published: Boolean(body.published),
         // Đặt publishedAt khi lần đầu publish
         publishedAt:

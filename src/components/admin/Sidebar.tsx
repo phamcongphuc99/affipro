@@ -9,10 +9,21 @@ const links = [
   { href: "/admin/products", label: "Sản phẩm" },
   { href: "/admin/posts", label: "Tin tức" },
   { href: "/admin/categories", label: "Danh mục" },
-  { href: "/admin/settings", label: "Cấu hình site" },
+  { href: "/admin/menu", label: "Menu điều hướng", adminOnly: true },
+  { href: "/admin/settings", label: "Cấu hình site", adminOnly: true },
+  { href: "/admin/users", label: "Tài khoản", adminOnly: true },
+  { href: "/admin/account", label: "Đổi mật khẩu" },
 ];
 
-export default function Sidebar({ name }: { name: string }) {
+export default function Sidebar({
+  name,
+  role,
+}: {
+  name: string;
+  role: string;
+}) {
+  const isAdmin = role === "ADMIN";
+  const visibleLinks = links.filter((l) => !l.adminOnly || isAdmin);
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -37,7 +48,7 @@ export default function Sidebar({ name }: { name: string }) {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {links.map((l) => (
+        {visibleLinks.map((l) => (
           <Link
             key={l.href}
             href={l.href}

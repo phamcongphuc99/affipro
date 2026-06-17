@@ -10,6 +10,10 @@ const postSchema = z.object({
   excerpt: z.string().optional().nullable(),
   content: z.string().min(1, "Nội dung bắt buộc"),
   coverImage: z.string().optional().nullable(),
+  metaTitle: z.string().optional().nullable(),
+  metaDescription: z.string().optional().nullable(),
+  focusKeyword: z.string().optional().nullable(),
+  ogImage: z.string().optional().nullable(),
   published: z.coerce.boolean().default(true),
 });
 
@@ -58,6 +62,10 @@ export async function POST(req: NextRequest) {
       excerpt,
       content: data.content,
       coverImage: data.coverImage || null,
+      metaTitle: data.metaTitle || null,
+      metaDescription: data.metaDescription || null,
+      focusKeyword: data.focusKeyword || null,
+      ogImage: data.ogImage || null,
       published: data.published,
       publishedAt: data.published ? new Date() : null,
     },

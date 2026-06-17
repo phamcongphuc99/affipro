@@ -121,21 +121,21 @@ export default function AdminCategoriesPage() {
                         </span>
                       )}
                     </div>
-                    <div className="space-x-3 text-sm">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
                           setEditingId(c.id);
                           setEditName(c.name);
                         }}
-                        className="text-brand-700 hover:underline"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-brand-700 bg-brand-50 hover:bg-brand-100 transition"
                       >
-                        Sửa
+                        ✎ Sửa
                       </button>
                       <button
                         onClick={() => remove(c.id, c.name)}
-                        className="text-red-600 hover:underline"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition"
                       >
-                        Xóa
+                        🗑 Xóa
                       </button>
                     </div>
                   </>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatCurrency, discountPercent } from "@/lib/utils";
+import SafeImage from "./SafeImage";
 
 interface ProductCardProps {
   product: {
@@ -22,9 +23,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition flex flex-col">
       <Link href={`/san-pham/${product.slug}`} className="block relative aspect-square overflow-hidden bg-gray-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={product.imageUrl || "/placeholder.svg"}
+        <SafeImage
+          src={product.imageUrl}
           alt={product.name}
           className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
         />

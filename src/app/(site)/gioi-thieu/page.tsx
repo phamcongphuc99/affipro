@@ -1,14 +1,16 @@
 import { Metadata } from "next";
 import { getSettings } from "@/lib/settings";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const metadata: Metadata = { title: "Giới thiệu" };
 export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
   const settings = await getSettings();
-  const content =
+  const content = sanitizeHtml(
     settings.about_content ||
-    "<p>Nội dung giới thiệu chưa được cập nhật. Vui lòng vào trang quản trị để chỉnh sửa.</p>";
+      "<p>Nội dung giới thiệu chưa được cập nhật. Vui lòng vào trang quản trị để chỉnh sửa.</p>"
+  );
 
   return (
     <div className="container py-12 max-w-3xl">

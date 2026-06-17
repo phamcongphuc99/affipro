@@ -4,15 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const nav = [
-  { href: "/", label: "Trang chủ" },
-  { href: "/san-pham", label: "Sản phẩm" },
-  { href: "/tin-tuc", label: "Tin tức" },
-  { href: "/gioi-thieu", label: "Giới thiệu" },
-  { href: "/lien-he", label: "Liên hệ" },
-];
+interface NavLink {
+  label: string;
+  href: string;
+}
 
-export default function Header({ siteName }: { siteName: string }) {
+export default function Header({
+  siteName,
+  nav,
+}: {
+  siteName: string;
+  nav: NavLink[];
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

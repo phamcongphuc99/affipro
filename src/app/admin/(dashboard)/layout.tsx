@@ -17,7 +17,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar name={session.name} />
+      <Sidebar name={session.name} role={session.role} />
       <div className="flex-1 min-w-0">
         {/* Dùng full chiều rộng; mỗi trang tự giới hạn bề rộng riêng nếu cần */}
         <div className="p-6 md:p-8 max-w-screen-2xl mx-auto">{children}</div>

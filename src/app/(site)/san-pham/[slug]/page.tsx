@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency, discountPercent } from "@/lib/utils";
 import ProductCard from "@/components/site/ProductCard";
 import ProductGallery from "@/components/site/ProductGallery";
+import { jsonLdString } from "@/lib/jsonld";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 interface Props {
   params: { slug: string };
@@ -12,14 +14,33 @@ interface Props {
 
 export const dynamic = "force-dynamic";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await prisma.product.findUnique({
     where: { slug: params.slug },
   });
   if (!product) return { title: "Không tìm thấy sản phẩm" };
+  const description = product.description || `Mua ${product.name} giá tốt.`;
+  const url = `${SITE_URL}/san-pham/${product.slug}`;
+  const images = product.imageUrl ? [{ url: product.imageUrl }] : undefined;
   return {
     title: product.name,
-    description: product.description || undefined,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title: product.name,
+      description,
+      url,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: product.imageUrl ? [product.imageUrl] : undefined,
+    },
   };
 }
 
@@ -33,6 +54,33 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const discount = discountPercent(product.price, product.salePrice);
   const finalPrice = product.salePrice ?? product.price;
+
+  // JSON-LD Product (giúp Google hiện giá, đánh giá, tình trạng còn hàng)
+  const url = `${SITE_URL}/san-pham/${product.slug}`;
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    ...(product.description ? { description: product.description } : {}),
+    ...(product.imageUrl ? { image: [product.imageUrl] } : {}),
+    ...(product.store ? { brand: { "@type": "Brand", name: product.store } } : {}),
+    ...(product.rating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            ratingCount: Math.max(1, product.clicks),
+          },
+        }
+      : {}),
+    offers: {
+      "@type": "Offer",
+      price: finalPrice,
+      priceCurrency: "VND",
+      availability: "https://schema.org/InStock",
+      url,
+    },
+  };
 
   // Sản phẩm liên quan (cùng danh mục)
   const related = await prisma.product.findMany({
@@ -54,6 +102,10 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="container py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(productJsonLd) }}
+      />
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-500 mb-6">
         <Link href="/" className="hover:text-brand-700">Trang chủ</Link>
@@ -72,7 +124,7 @@ export default async function ProductDetailPage({ params }: Props) {
         )}
       </nav>
 
-      <div className="grid md:grid-cols-2 gap-10">
+      <div className="grid md:grid-cols-[28rem_1fr] gap-8 items-start">
         {/* Ảnh */}
         <ProductGallery
           main={product.imageUrl}
@@ -143,7 +195,7 @@ export default async function ProductDetailPage({ params }: Props) {
           <h2 className="text-xl font-bold text-gray-900 mb-4">Mô tả chi tiết</h2>
           <div
             className="prose-content"
-            dangerouslySetInnerHTML={{ __html: product.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(product.content) }}
           />
         </div>
       )}

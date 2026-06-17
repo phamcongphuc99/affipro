@@ -19,10 +19,17 @@ export default function ProductGallery({ main, images, name }: Props) {
   const current = list[Math.min(active, list.length - 1)];
 
   return (
-    <div>
+    <div className="max-w-md mx-auto md:mx-0">
       <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={current} alt={name} className="h-full w-full object-cover" />
+        <img
+          src={current}
+          alt={name}
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
+        />
       </div>
 
       {list.length > 1 && (
@@ -43,6 +50,9 @@ export default function ProductGallery({ main, images, name }: Props) {
                 src={src}
                 alt={`${name} ${i + 1}`}
                 className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/placeholder.svg";
+                }}
               />
             </button>
           ))}
