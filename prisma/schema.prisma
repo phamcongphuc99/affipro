@@ -47,9 +47,14 @@ model Product {
   salePrice     Int? // giá khuyến mãi (VND), null nếu không có
   imageUrl      String? // ảnh đại diện
   gallery       String?   @db.Text // JSON mảng URL ảnh phụ
-  affiliateUrl  String    @db.Text // link affiliate "Mua ngay"
-  store         String? // tên sàn: Shopee, Lazada, Tiki...
+  affiliateUrl  String    @db.Text // link affiliate "Mua ngay" (mặc định / dự phòng)
+  store         String? // tên sàn chính: Shopee, Lazada, Tiki...
   rating        Float?    @default(0) // điểm đánh giá 0-5
+  // ===== Review kiểu Wirecutter =====
+  pros          String?   @db.Text // ưu điểm, mỗi dòng 1 ý
+  cons          String?   @db.Text // nhược điểm, mỗi dòng 1 ý
+  bestFor       String?   @db.Text // "Ai nên mua" / phù hợp với ai
+  compareIds    String?   @db.Text // JSON mảng id sản phẩm để so sánh; trống = tự động theo danh mục
   featured      Boolean   @default(false) // sản phẩm nổi bật
   published     Boolean   @default(true)
   clicks        Int       @default(0) // số lượt bấm mua (theo dõi hiệu quả)
@@ -58,10 +63,26 @@ model Product {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   clickEvents   ClickEvent[]
+  offers        Offer[] // nhiều link mua ở nhiều sàn để so giá
 
   @@index([categoryId])
   @@index([featured])
   @@index([published])
+}
+
+// Link mua ở từng sàn (Shopee/Lazada/Tiki...) cho 1 sản phẩm, kèm giá để so sánh.
+model Offer {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store     String  // tên sàn: Shopee, Lazada, Tiki...
+  url       String  @db.Text // link affiliate tới sàn đó
+  image     String? @db.Text // ảnh riêng của sàn này (trống = dùng ảnh sản phẩm)
+  price     Int? // giá tại sàn này (VND), null nếu không nhập
+  clicks    Int     @default(0) // lượt bấm riêng cho link sàn này
+  position  Int     @default(0) // thứ tự hiển thị
+
+  @@index([productId])
 }
 
 // Ghi lại từng lượt bấm "Mua ngay" để vẽ biểu đồ theo ngày / danh mục / sản phẩm.

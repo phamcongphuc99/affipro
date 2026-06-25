@@ -7,9 +7,16 @@ export default async function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const [product, categories] = await Promise.all([
-    prisma.product.findUnique({ where: { id: Number(params.id) } }),
+  const [product, categories, allProducts] = await Promise.all([
+    prisma.product.findUnique({
+      where: { id: Number(params.id) },
+      include: { offers: { orderBy: { position: "asc" } } },
+    }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.product.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   if (!product) notFound();
@@ -17,7 +24,11 @@ export default async function EditProductPage({
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Sửa sản phẩm</h1>
-      <ProductForm product={product} categories={categories} />
+      <ProductForm
+        product={product}
+        categories={categories}
+        allProducts={allProducts}
+      />
     </div>
   );
 }

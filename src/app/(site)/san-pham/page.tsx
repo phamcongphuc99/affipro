@@ -7,7 +7,7 @@ import Pagination from "@/components/site/Pagination";
 export const metadata: Metadata = { title: "Sản phẩm" };
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 9; // số sản phẩm mỗi trang
+const PAGE_SIZE = 12; // 3 hàng x 4 sản phẩm mỗi trang
 
 export default async function ProductsPage({
   searchParams,
@@ -43,45 +43,52 @@ export default async function ProductsPage({
     <div className="container py-10">
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Sản phẩm</h1>
 
-      {/* Thanh tìm kiếm */}
-      <form action="/san-pham" method="get" className="mb-6 flex gap-2 max-w-md">
-        <input
-          type="text"
-          name="search"
-          defaultValue={search}
-          placeholder="Tìm sản phẩm..."
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
-        />
-        <button className="bg-brand-600 text-white px-5 rounded-lg font-medium hover:bg-brand-700">
-          Tìm
-        </button>
-      </form>
-
-      {/* Lọc danh mục */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        <Link
-          href="/san-pham"
-          className={`px-4 py-1.5 rounded-full text-sm font-medium border ${
-            !category
-              ? "bg-brand-600 text-white border-brand-600"
-              : "bg-white border-gray-200 text-gray-600 hover:border-brand-400"
-          }`}
-        >
-          Tất cả
-        </Link>
-        {categories.map((c) => (
+      {/* Lọc danh mục (trái) + tìm kiếm (phải) cùng một hàng */}
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        {/* Lọc danh mục */}
+        <div className="flex flex-wrap gap-2">
           <Link
-            key={c.id}
-            href={`/san-pham?category=${c.slug}`}
+            href="/san-pham"
             className={`px-4 py-1.5 rounded-full text-sm font-medium border ${
-              category === c.slug
+              !category
                 ? "bg-brand-600 text-white border-brand-600"
                 : "bg-white border-gray-200 text-gray-600 hover:border-brand-400"
             }`}
           >
-            {c.name}
+            Tất cả
           </Link>
-        ))}
+          {categories.map((c) => (
+            <Link
+              key={c.id}
+              href={`/san-pham?category=${c.slug}`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium border ${
+                category === c.slug
+                  ? "bg-brand-600 text-white border-brand-600"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-brand-400"
+              }`}
+            >
+              {c.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* Thanh tìm kiếm */}
+        <form
+          action="/san-pham"
+          method="get"
+          className="flex gap-2 w-full md:w-auto md:shrink-0"
+        >
+          <input
+            type="text"
+            name="search"
+            defaultValue={search}
+            placeholder="Tìm sản phẩm..."
+            className="flex-1 md:w-64 rounded-lg border border-gray-300 px-4 py-2 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+          />
+          <button className="bg-brand-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-brand-700">
+            Tìm
+          </button>
+        </form>
       </div>
 
       {products.length > 0 ? (

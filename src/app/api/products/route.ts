@@ -16,9 +16,24 @@ const productSchema = z.object({
   affiliateUrl: z.string().min(1, "Link affiliate bắt buộc"),
   store: z.string().optional().nullable(),
   rating: z.coerce.number().min(0).max(5).optional().nullable(),
+  pros: z.string().optional().nullable(),
+  cons: z.string().optional().nullable(),
+  bestFor: z.string().optional().nullable(),
+  compareIds: z.array(z.coerce.number().int()).optional().default([]),
   featured: z.coerce.boolean().default(false),
   published: z.coerce.boolean().default(true),
   categoryId: z.coerce.number().int().optional().nullable(),
+  offers: z
+    .array(
+      z.object({
+        store: z.string().min(1),
+        url: z.string().min(1),
+        image: z.string().optional().nullable(),
+        price: z.coerce.number().int().min(0).optional().nullable(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 // GET /api/products?search=&category=&featured=  (công khai)
@@ -74,9 +89,24 @@ export async function POST(req: NextRequest) {
       affiliateUrl: data.affiliateUrl,
       store: data.store || null,
       rating: data.rating ?? 0,
+      pros: data.pros || null,
+      cons: data.cons || null,
+      bestFor: data.bestFor || null,
+      compareIds: data.compareIds.length ? JSON.stringify(data.compareIds) : null,
       featured: data.featured,
       published: data.published,
       categoryId: data.categoryId || null,
+      offers: data.offers.length
+        ? {
+            create: data.offers.map((o, i) => ({
+              store: o.store,
+              url: o.url,
+              image: o.image || null,
+              price: o.price ?? null,
+              position: i,
+            })),
+          }
+        : undefined,
     },
   });
   return NextResponse.json(product, { status: 201 });

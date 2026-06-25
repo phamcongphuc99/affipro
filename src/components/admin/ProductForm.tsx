@@ -11,6 +11,13 @@ interface Category {
   name: string;
 }
 
+interface Offer {
+  store: string;
+  url: string;
+  image?: string | null;
+  price?: number | string | null;
+}
+
 interface ProductData {
   id?: number;
   name?: string;
@@ -24,17 +31,24 @@ interface ProductData {
   affiliateUrl?: string;
   store?: string | null;
   rating?: number | null;
+  pros?: string | null;
+  cons?: string | null;
+  bestFor?: string | null;
+  compareIds?: string | null;
   featured?: boolean;
   published?: boolean;
   categoryId?: number | null;
+  offers?: Offer[];
 }
 
 export default function ProductForm({
   product,
   categories,
+  allProducts = [],
 }: {
   product?: ProductData;
   categories: Category[];
+  allProducts?: { id: number; name: string }[];
 }) {
   const router = useRouter();
   const isEdit = !!product?.id;
@@ -50,6 +64,9 @@ export default function ProductForm({
     affiliateUrl: product?.affiliateUrl || "",
     store: product?.store || "",
     rating: product?.rating ?? "",
+    pros: product?.pros || "",
+    cons: product?.cons || "",
+    bestFor: product?.bestFor || "",
     featured: product?.featured ?? false,
     published: product?.published ?? true,
     categoryId: product?.categoryId ?? "",
@@ -62,6 +79,27 @@ export default function ProductForm({
       return [];
     }
   });
+  // Link mua ở nhiều sàn (Shopee/Lazada/Tiki) để so giá. Đây cũng là dữ liệu cho
+  // bảng "So sánh nhanh" trên trang sản phẩm.
+  const [offers, setOffers] = useState<Offer[]>(
+    () =>
+      product?.offers?.map((o) => ({
+        store: o.store,
+        url: o.url,
+        image: o.image ?? "",
+        price: o.price ?? "",
+      })) || []
+  );
+
+  function setOffer(i: number, key: keyof Offer, value: string) {
+    setOffers((list) => list.map((o, idx) => (idx === i ? { ...o, [key]: value } : o)));
+  }
+  function addOffer() {
+    setOffers((list) => [...list, { store: "", url: "", image: "", price: "" }]);
+  }
+  function removeOffer(i: number) {
+    setOffers((list) => list.filter((_, idx) => idx !== i));
+  }
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -81,6 +119,15 @@ export default function ProductForm({
       rating: form.rating === "" ? null : Number(form.rating),
       categoryId: form.categoryId === "" ? null : Number(form.categoryId),
       gallery: gallery.length ? JSON.stringify(gallery) : null,
+      // chỉ gửi link sàn có đủ tên sàn + url
+      offers: offers
+        .filter((o) => o.store.trim() && String(o.url).trim())
+        .map((o) => ({
+          store: o.store.trim(),
+          url: String(o.url).trim(),
+          image: o.image ? String(o.image).trim() : null,
+          price: o.price === "" || o.price == null ? null : Number(o.price),
+        })),
     };
 
     try {
@@ -250,6 +297,114 @@ export default function ProductForm({
           </select>
         </div>
       </div>
+      </div>
+
+      {/* Review kiểu Wirecutter: ưu điểm / nhược điểm / ai nên mua */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 grid sm:grid-cols-2 gap-4">
+        <div>
+          <label className={labelCls}>Ưu điểm (mỗi dòng 1 ý)</label>
+          <textarea
+            className={input}
+            rows={4}
+            value={form.pros}
+            onChange={(e) => set("pros", e.target.value)}
+            placeholder={"Pin trâu\nÂm thanh hay\nChống ồn tốt"}
+          />
+        </div>
+        <div>
+          <label className={labelCls}>Nhược điểm (mỗi dòng 1 ý)</label>
+          <textarea
+            className={input}
+            rows={4}
+            value={form.cons}
+            onChange={(e) => set("cons", e.target.value)}
+            placeholder={"Giá cao\nHơi nặng"}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <label className={labelCls}>Ai nên mua / Phù hợp với ai</label>
+          <textarea
+            className={input}
+            rows={2}
+            value={form.bestFor}
+            onChange={(e) => set("bestFor", e.target.value)}
+            placeholder="Người cần tai nghe chống ồn để đi làm, di chuyển nhiều..."
+          />
+        </div>
+      </div>
+
+      {/* Link mua ở các sàn — cũng là dữ liệu cho bảng "So sánh nhanh" trên trang sản phẩm */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <label className={labelCls + " mb-0"}>Link mua ở các sàn (so giá)</label>
+            <p className="text-xs text-gray-500">
+              Mỗi sàn nhập: tên sàn, link mua, ảnh (để trống dùng ảnh sản phẩm) và giá.
+              Đây chính là dữ liệu cho bảng "So sánh nhanh" trên trang sản phẩm.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={addOffer}
+            className="shrink-0 rounded-lg border border-brand-300 bg-brand-50 text-brand-700 px-3 py-1.5 text-sm font-medium hover:bg-brand-100"
+          >
+            + Thêm sàn
+          </button>
+        </div>
+        {offers.length === 0 && (
+          <p className="text-sm text-gray-400">Chưa có link sàn nào.</p>
+        )}
+        {offers.map((o, i) => (
+          <div key={i} className="rounded-lg border border-gray-200 p-3 space-y-2">
+            {/* Hàng 1: ảnh xem trước · tên sàn · giá · nút xóa */}
+            <div className="grid grid-cols-[2.5rem_1fr_8rem_2.5rem] gap-2 items-center">
+              <div className="h-[38px] w-[38px] rounded-md overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+                {o.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={String(o.image)} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-[10px] text-gray-400">ảnh</span>
+                )}
+              </div>
+              <input
+                className={input}
+                value={o.store}
+                onChange={(e) => setOffer(i, "store", e.target.value)}
+                placeholder="Tên sàn (Shopee)"
+              />
+              <input
+                type="number"
+                min={0}
+                className={input}
+                value={o.price == null ? "" : String(o.price)}
+                onChange={(e) => setOffer(i, "price", e.target.value)}
+                placeholder="Giá"
+              />
+              <button
+                type="button"
+                onClick={() => removeOffer(i)}
+                className="h-[38px] w-[38px] rounded-lg border border-gray-300 text-gray-500 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
+                title="Xóa sàn này"
+              >
+                ✕
+              </button>
+            </div>
+            {/* Hàng 2: link mua */}
+            <input
+              className={input}
+              value={String(o.url)}
+              onChange={(e) => setOffer(i, "url", e.target.value)}
+              placeholder="Link mua: https://shopee.vn/..."
+            />
+            {/* Hàng 3: URL ảnh riêng của sàn (tùy chọn) */}
+            <input
+              className={input}
+              value={o.image ? String(o.image) : ""}
+              onChange={(e) => setOffer(i, "image", e.target.value)}
+              placeholder="URL ảnh của sàn này (tùy chọn, để trống dùng ảnh sản phẩm)"
+            />
+          </div>
+        ))}
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">

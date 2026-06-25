@@ -11,7 +11,7 @@ export async function GET(
   const id = Number(params.id);
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { category: true },
+    include: { category: true, offers: { orderBy: { position: "asc" } } },
   });
   if (!product) {
     return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
@@ -33,6 +33,16 @@ export async function PUT(
   const slug =
     body.slug && body.slug.trim() ? body.slug.trim() : toSlug(body.name || "");
 
+  // Danh sách link sàn gửi lên (có thể rỗng). Thay thế toàn bộ offers cũ.
+  const offers: Array<{
+    store: string;
+    url: string;
+    image?: string | null;
+    price?: number | null;
+  }> = Array.isArray(body.offers)
+    ? body.offers.filter((o: any) => o && o.store && o.url)
+    : [];
+
   try {
     const product = await prisma.product.update({
       where: { id },
@@ -48,9 +58,26 @@ export async function PUT(
         affiliateUrl: body.affiliateUrl,
         store: body.store ?? null,
         rating: body.rating != null ? Number(body.rating) : 0,
+        pros: body.pros ?? null,
+        cons: body.cons ?? null,
+        bestFor: body.bestFor ?? null,
+        compareIds:
+          Array.isArray(body.compareIds) && body.compareIds.length
+            ? JSON.stringify(body.compareIds.map((n: any) => Number(n)).filter(Boolean))
+            : null,
         featured: Boolean(body.featured),
         published: Boolean(body.published),
         categoryId: body.categoryId ? Number(body.categoryId) : null,
+        offers: {
+          deleteMany: {},
+          create: offers.map((o, i) => ({
+            store: o.store,
+            url: o.url,
+            image: o.image || null,
+            price: o.price != null && o.price !== ("" as any) ? Number(o.price) : null,
+            position: i,
+          })),
+        },
       },
     });
     return NextResponse.json(product);

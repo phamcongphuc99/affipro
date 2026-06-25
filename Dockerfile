@@ -18,9 +18,9 @@ COPY . .
 ENV DATABASE_URL="mysql://build:build@localhost:3306/build"
 RUN npm run build
 
-ENV NODE_ENV=production
-ENV PORT=3000
-EXPOSE 3000
+# ENV NODE_ENV=production
+# ENV PORT=3000
+# EXPOSE 3000
 
 # Khi container khởi động: đồng bộ schema vào MySQL rồi chạy Next.js production.
 CMD ["sh", "-c", "npx prisma db push && npm run start"]
